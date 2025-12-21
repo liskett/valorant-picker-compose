@@ -14,13 +14,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.valorantpickercompose.AgentViewModel
 import com.example.valorantpickercompose.PickerViewModel
 
 @Composable
-fun ResultScreen(navController: NavController, pickerViewModel: PickerViewModel) {
-    val state = pickerViewModel.state.collectAsState().value
-    val map: String = state.selectedMap.toString()
-    val result = state.resultAgents.joinToString(", ")
+fun ResultScreen(navController: NavController, pickerViewModel: PickerViewModel,agentViewModel: AgentViewModel) {
+    val pickerState = pickerViewModel.state.collectAsState().value
+    val agentState = agentViewModel.state.collectAsState().value
+    val map: String = pickerState.selectedMap.toString()
+    val agents = agentState.selectedAgents.toList()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -30,7 +33,7 @@ fun ResultScreen(navController: NavController, pickerViewModel: PickerViewModel)
     ) {
         Text("MAP: $map")
         Spacer(modifier = Modifier.height(20.dp))
-        Text(result)
+        Text(agents.joinToString(", "))
         Button(onClick = {navController.navigateUp()}){
             Text("back")
         }

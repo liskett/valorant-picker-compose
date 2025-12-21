@@ -22,21 +22,18 @@ sealed class ScreenRoutes(val route: String) {
     object Result : ScreenRoutes("result_screen")
 }
 
-data class PickerState(
-    val selectedMap: String? = null,
-    val selectedAgents: List<String> = emptyList(),
-    val resultAgents: List<String> = emptyList()
-)
+
 
 
 
 class MainActivity : ComponentActivity() {
     private val pickerViewModel: PickerViewModel by viewModels()
+    private val agentViewModel: AgentViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            MyApp(pickerViewModel)
+            MyApp(pickerViewModel,agentViewModel)
         }
     }
     override fun onStart() {
@@ -61,7 +58,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 @Composable
-fun MyApp(pickerViewModel: PickerViewModel) {
+fun MyApp(pickerViewModel: PickerViewModel,agentViewModel: AgentViewModel) {
     val navController = rememberNavController()
 
     NavHost(
@@ -70,8 +67,8 @@ fun MyApp(pickerViewModel: PickerViewModel) {
     ) {
         composable(ScreenRoutes.Home.route) { HomeScreen(navController) }
         composable(ScreenRoutes.ChooseMap.route) { ChooseMapScreen(navController,pickerViewModel) }
-        composable(ScreenRoutes.Agent.route) { AgentScreen(navController,pickerViewModel) }
-        composable(ScreenRoutes.Result.route) { ResultScreen(navController,pickerViewModel) }
+        composable(ScreenRoutes.Agent.route) { AgentScreen(navController, agentViewModel) }
+        composable(ScreenRoutes.Result.route) { ResultScreen(navController,pickerViewModel,agentViewModel) }
     }
 }
 
