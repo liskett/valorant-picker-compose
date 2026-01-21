@@ -1,0 +1,139 @@
+{
+  "Bind": {
+    "Clove": [
+      "Controller",
+      "52.3%",
+      "9.4%"
+    ],
+    "Sage": [
+      "Sentinel",
+      "50.8%",
+      "5.7%"
+    ],
+    "Reyna": [
+      "Duelist",
+      "50.6%",
+      "10.5%"
+    ],
+    "Raze": [
+      "Duelist",
+      "50.5%",
+      "7.6%"
+    ],
+    "Gekko": [
+      "Initiator",
+      "50.5%",
+      "3.9%"
+    ],
+    "Cypher": [
+      "Sentinel",
+      "50.4%",
+      "7.6%"
+    ],
+    "Phoenix": [
+      "Duelist",
+      "50.4%",
+      "3.1%"
+    ],
+    "Fade": [
+      "Initiator",
+      "50.3%",
+      "3.4%"
+    ],
+    "Deadlock": [
+      "Sentinel",
+      "50.3%",
+      "3.1%"
+    ],
+    "Killjoy": [
+      "Sentinel",
+      "50.1%",
+      "1.9%"
+    ],
+    "Skye": [
+      "Initiator",
+      "50.0%",
+      "4.5%"
+    ],
+    "Jett": [
+      "Duelist",
+      "49.9%",
+      "7.4%"
+    ],
+    "Sova": [
+      "Initiator",
+      "49.9%",
+      "2.8%"
+    ],
+    "Chamber": [
+      "Sentinel",
+      "49.7%",
+      "4.7%"
+    ],
+    "Brimstone": [
+      "Controller",
+      "49.7%",
+      "4.7%"
+    ],
+    "Vyse": [
+      "Sentinel",
+      "49.5%",
+      "0.7%"
+    ],
+    "Neon": [
+      "Duelist",
+      "49.1%",
+      "2.5%"
+    ],
+    "Iso": [
+      "Duelist",
+      "48.7%",
+      "2.1%"
+    ],
+    "Breach": [
+      "Initiator",
+      "48.6%",
+      "1.8%"
+    ],
+    "Viper": [
+      "Controller",
+      "48.5%",
+      "0.8%"
+    ],
+    "Yoru": [
+      "Duelist",
+      "48.3%",
+      "2.8%"
+    ],
+    "Tejo": [
+      "Initiator",
+      "48.0%",
+      "1.2%"
+    ],
+    "Waylay": [
+      "Duelist",
+      "47.5%",
+      "0.8%"
+    ],
+    "Omen": [
+      "Controller",
+      "46.9%",
+      "4.7%"
+    ],
+    "Astra": [
+      "Controller",
+      "46.7%",
+      "0.5%"
+    ],
+    "KAY/O": [
+      "Initiator",
+      "46.5%",
+      "1.5%"
+    ],
+    "Harbor": [
+      "Controller",
+      "44.3%",
+      "0.2%"
+    ]
+  }
+}
