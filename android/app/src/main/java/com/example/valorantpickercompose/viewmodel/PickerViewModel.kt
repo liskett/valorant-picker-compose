@@ -9,12 +9,12 @@ data class PickerState(
     val selectedAgents: List<String> = emptyList(),
     val resultAgents: List<String> = emptyList()
 )
-class PickerViewModel: ViewModel() {
+
+class PickerViewModel : ViewModel() {
     private val _state = MutableStateFlow(PickerState())
     val state: StateFlow<PickerState> = _state
 
     fun selectMap(map: String) {
         _state.value = _state.value.copy(selectedMap = map)
     }
-
 }

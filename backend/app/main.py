@@ -1,9 +1,8 @@
 from fastapi import FastAPI, HTTPException, Depends
 from pydantic import BaseModel
-from typing import List, Dict
 from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.orm import sessionmaker, declarative_base, Session
-import json, os
+
 import hashlib
 
 app = FastAPI()
@@ -82,43 +81,6 @@ def login_user(data: LoginRequest, db: Session = Depends(get_db)):
         raise HTTPException(status_code=401, detail="Invalid password")
 
     return {"message": "Login successful", "userId": user.id}
-
-
-class RequestData(BaseModel):
-    map: str
-    team_agents: List[str]
-    player_skills: Dict[str, int] = {}
-
-
-class ResponseData(BaseModel):
-    top_agents: List[str]
-
-
-@app.post("/recommend", response_model=ResponseData)
-def recommend_agents(data: RequestData):
-    path = f"D:/projects/ai_project/jsonvalorant/{data.map.capitalize()}_agents.json"
-    if not os.path.exists(path):
-        return {"top_agents": []}
-
-    with open(path, "r", encoding="utf-8") as f:
-        map_data = json.load(f)
-
-    agents_stats = map_data.get(data.map.capitalize(), {})
-    agents_stats['Kayo'] = agents_stats.pop('KAY/O')
-    team_roles = [agents_stats[ag][0] for ag in data.team_agents]
-
-    def winrate(agent_info):
-        try:
-            return float(agent_info[1].replace("%", ""))
-        except:
-            return 0
-
-    candidates = {k: v for k, v in agents_stats.items()
-                  if k not in data.team_agents and (
-                              v[0] not in team_roles or (v[0] == "Duelist" and team_roles.count("Duelist") < 2))}
-    top_agents = sorted(candidates.keys(), key=lambda x: winrate(candidates[x]), reverse=True)[:5]
-    return {"top_agents": top_agents}
-
 
 if __name__ == "__main__":
     import uvicorn

@@ -1,6 +1,5 @@
 package com.example.valorantpickercompose.screens
 
-
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -23,13 +22,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
@@ -37,12 +37,8 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
-import com.example.valorantpickercompose.ScreenRoutes
-import com.example.valorantpickercompose.viewmodel.AgentViewModel
 import com.example.valorantpickercompose.R
-
-
+import com.example.valorantpickercompose.viewmodel.AgentState
 
 val agentIcons = mapOf(
     "Astra" to R.drawable.astra_icon,
@@ -72,111 +68,151 @@ val agentIcons = mapOf(
     "Viper" to R.drawable.viper_icon,
     "Vyse" to R.drawable.vyse_icon,
     "Waylay" to R.drawable.waylay_icon,
-    "Yoru" to R.drawable.yoru_icon,
-
+    "Yoru" to R.drawable.yoru_icon
 )
-
 @Composable
-fun AgentScreen(navController: NavController, agentViewModel: AgentViewModel) {
-    val state by agentViewModel.state.collectAsState()
+fun AgentScreen(
+    agentState: AgentState,
+    onSelectAgent: (String) -> Unit,
+    onRemoveAgent: (String) -> Unit,
+    onToResultClick: () -> Unit,
+    onBackClick: () -> Unit
+) {
+    val bg = MaterialTheme.colorScheme.background
+    val accent = MaterialTheme.colorScheme.primary
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Black)
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = bg
     ) {
-
-        Column(
-            modifier = Modifier.fillMaxSize().padding(top=20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(150.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "CHOOSE AGENTS",
-                    color = Color.White,
-                    fontSize = 40.sp,
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = FontFamily(Font(R.font.valorantfont))
-                )
-            }
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                repeat(4) { index ->
-                    if (index < state.selectedAgents.size) {
-                        SelectedAgentIcon(
-                            agentName = state.selectedAgents[index],
-                            onRemove = {
-                                agentViewModel.removeAgent(state.selectedAgents[index])
-                            }
-                        )
-                    } else {
-                        EmptySlot()
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(60.dp))
-
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(4),
-                modifier = Modifier.fillMaxWidth().height(430.dp),
-                contentPadding = PaddingValues(12.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                items(agentIcons.keys.toList()) { agentName ->
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(30.dp))
-                            .background(color=Color(0xFF671717))
-
-                    ) {
-                        Image(
-                            painter = painterResource(agentIcons[agentName]!!),
-                            contentDescription = agentName,
-                            modifier = Modifier
-                                .size(80.dp)
-                                .clickable {
-                                    agentViewModel.selectAgent(agentName)
-                                }
-                        )
-                    }
-
-                }
-            }
-            Spacer(modifier = Modifier.height(60.dp))
-            if (state.selectedAgents.size == 4) {
-                Button(
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF671717)),
-                    onClick = {
-                        navController.navigate(ScreenRoutes.Result.route)
-                    }
-                ) {
-                    Text("TO RESULT")
-                }
-            }
-        }
-
-        Icon(
-            painter = painterResource(R.drawable.lucide_arrow_big_left),
-            contentDescription = "back",
-            tint = Color.White,
+        Box(
             modifier = Modifier
-                .align(Alignment.TopStart)
-                .padding(start = 20.dp, top = 30.dp)
-                .clickable{navController.navigateUp()},
-        )
+                .fillMaxSize()
+                .background(bg)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = 24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(80.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "CHOOSE AGENTS",
+                        color = MaterialTheme.colorScheme.onBackground,
+                        fontSize = 28.sp,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = FontFamily(Font(R.font.valorantfont))
+                    )
+                }
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    repeat(4) { index ->
+                        if (index < agentState.selectedAgents.size) {
+                            SelectedAgentIcon(
+                                agentName = agentState.selectedAgents[index],
+                                onRemove = { onRemoveAgent(agentState.selectedAgents[index]) }
+                            )
+                        } else {
+                            EmptySlot()
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(4),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(430.dp),
+                    contentPadding = PaddingValues(12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(agentIcons.keys.toList()) { agentName ->
+                        val isSelected = agentState.selectedAgents.contains(agentName)
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(24.dp))
+                                .background(
+                                    if (isSelected)
+                                        MaterialTheme.colorScheme.surfaceVariant
+                                    else
+                                        MaterialTheme.colorScheme.surface
+                                )
+                                .border(
+                                    width = if (isSelected) 2.dp else 0.dp,
+                                    color = if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent,
+                                    shape = RoundedCornerShape(24.dp)
+                                )
+                        ) {
+                            Image(
+                                painter = painterResource(agentIcons[agentName]!!),
+                                contentDescription = agentName,
+                                modifier = Modifier
+                                    .size(72.dp)
+                                    .clickable { onSelectAgent(agentName) }
+                            )
+
+                            if (isSelected) {
+                                Box(
+                                    modifier = Modifier
+                                        .matchParentSize()
+                                        .background(
+                                            Brush.radialGradient(
+                                                colors = listOf(
+                                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.18f),
+                                                    Color.Transparent
+                                                )
+                                            )
+                                        )
+                                )
+                            }
+                        }
+                    }
+
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                if (agentState.selectedAgents.size == 4) {
+                    Button(
+                        colors = ButtonDefaults.buttonColors(containerColor = accent),
+                        onClick = onToResultClick
+                    ) {
+                        Text(
+                            "TO RESULT",
+                            fontFamily = FontFamily(Font(R.font.valorantfont))
+                        )
+                    }
+                }
+            }
+
+            Icon(
+                painter = painterResource(R.drawable.lucide_arrow_big_left),
+                contentDescription = "back",
+                tint = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(start = 16.dp, top = 16.dp)
+                    .clickable { onBackClick() },
+            )
+        }
     }
 }
+
 @Composable
 fun SelectedAgentIcon(
     agentName: String,
@@ -184,30 +220,33 @@ fun SelectedAgentIcon(
 ) {
     Box(
         modifier = Modifier
-            .size(90.dp)
-            .border(1.dp, Color.Gray, RoundedCornerShape(8.dp)),
+            .size(72.dp)
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.outline,
+                shape = RoundedCornerShape(8.dp)
+            ),
         contentAlignment = Alignment.BottomCenter,
-
-
-    ){
+    ) {
         Image(
             painter = painterResource(agentIcons[agentName]!!),
             contentDescription = agentName,
             modifier = Modifier
-                .size(90.dp)
-                .padding(bottom = 3.dp)
+                .size(72.dp)
                 .clickable { onRemove() }
         )
     }
-
 }
+
 @Composable
 fun EmptySlot() {
     Box(
         modifier = Modifier
-            .size(90.dp)
-            .border(1.dp, Color.Gray, RoundedCornerShape(8.dp))
+            .size(72.dp)
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+                shape = RoundedCornerShape(8.dp)
+            )
     )
 }
-
-
