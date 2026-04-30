@@ -27,8 +27,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -85,8 +83,7 @@ fun ChooseMapScreen(
                         text = "CHOOSE MAP",
                         color = MaterialTheme.colorScheme.onBackground,
                         fontSize = 28.sp,
-                        fontWeight = FontWeight.Bold,
-                        fontFamily = FontFamily(Font(R.font.valorantfont))
+                        fontWeight = FontWeight.Bold
                     )
                 }
 
@@ -136,8 +133,7 @@ fun MapCard(
                     contentDescription = mapName,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .height(120.dp),
+                        .fillMaxSize()
                 )
             } else {
                 Box(
@@ -174,8 +170,7 @@ fun MapCard(
             Text(
                 text = mapName,
                 fontSize = 22.sp,
-                fontWeight = FontWeight.Bold,
-                fontFamily = FontFamily(Font(R.font.valorantfont)),
+                fontWeight = FontWeight.SemiBold,
                 color = Color.White,
                 modifier = Modifier.align(Alignment.Center)
             )

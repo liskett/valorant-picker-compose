@@ -26,12 +26,11 @@ import com.example.valorantpickercompose.screens.ResultScreen
 import com.example.valorantpickercompose.screens.SignInScreen
 import com.example.valorantpickercompose.screens.SignUpScreen
 import com.example.valorantpickercompose.ui.theme.AppTheme
-import com.example.valorantpickercompose.viewmodel.AgentViewModel
 import com.example.valorantpickercompose.viewmodel.PickerViewModel
 import com.example.valorantpickercompose.viewmodel.AuthViewModel
 import com.example.valorantpickercompose.domain.model.Recommendation
 
-
+//sealed класс для хранения маршрутов навигации
 sealed class ScreenRoutes(val route: String) {
     object Home : ScreenRoutes("home_screen")
     object SignIn : ScreenRoutes("sign_in_screen")
@@ -44,7 +43,6 @@ sealed class ScreenRoutes(val route: String) {
 class MainActivity : ComponentActivity() {
 
     private val pickerViewModel: PickerViewModel by viewModels()
-    private val agentViewModel: AgentViewModel by viewModels()
     // AuthViewModel будем создавать через AuthModule внутри MyApp
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,12 +50,12 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             AppTheme {
-                MyApp(pickerViewModel, agentViewModel)
+                MyApp(pickerViewModel)
             }
-
         }
     }
 
+    // логирование жизненного цикла
     override fun onStart() {
         Log.d("TAG", "onStart")
         super.onStart()
@@ -83,59 +81,62 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MyApp(
     pickerViewModel: PickerViewModel,
-    agentViewModel: AgentViewModel
 ) {
+    // remember чтобы не пересоздавался при рекомпозициях
     val navController = rememberNavController()
+    //cоздаем AuthViewModel через DI-модуль
     val authViewModel: AuthViewModel = androidx.compose.runtime.remember {
         AuthModule.provideAuthViewModel()
     }
     //for SignInScreen
-    val loginState by authViewModel.loginState.collectAsState()
-    var signInEmail by remember { mutableStateOf("") }
+    val loginState by authViewModel.loginState.collectAsState() // подписываемся на состояние входа с помощью коллектора для stateflow
+    var signInEmail by remember { mutableStateOf("") } // просто состояние email и password при заходе на экран
     var signInPassword by remember { mutableStateOf("") }
 
     //for SignUpScreen
-    val registerState by authViewModel.registerState.collectAsState()
-    var signUpEmail by remember { mutableStateOf("") }
+    val registerState by authViewModel.registerState.collectAsState() // подписываемся на состояние регистрации с помощью коллектора для stateflow
+    var signUpEmail by remember { mutableStateOf("") } // просто состояние email и password при заходе на экран
     var signUpPassword by remember { mutableStateOf("") }
 
-    //for ChooseMapScreen
-    val pickerState by pickerViewModel.state.collectAsState()
-
-    //for AgentScreen
-    val agentState by agentViewModel.state.collectAsState()
+    //for ChooseMapScreen и AgentScreen, получаем данные из PickerViewModel
+    val pickerState by pickerViewModel.state.collectAsState() // подписываемся на состояние pickerState с помощью коллектора для stateflow
 
     //for ResultScreen
-    val context = LocalContext.current
+    val context = LocalContext.current // для доступа к assets
 
+    //создаем репозиторий для работы со статистикой
     val mapStatsRepository = remember {
         MapAgentStatsRepository(context)
     }
 
+    // используем этот репозиторий для создания useCase
     val recommendAgentsUseCase = remember {
         RecommendAgentsUseCase(
             mapStatsRepository = mapStatsRepository
         )
     }
 
-    val pickerStateValue = pickerViewModel.state.collectAsState().value
-    val agentStateValue = agentViewModel.state.collectAsState().value
-    val selectedMap: String = pickerStateValue.selectedMap ?: ""
-    val selectedAgents = agentStateValue.selectedAgents.toList()
+    val selectedMap: String = pickerState.selectedMap ?: ""
+    val selectedAgents = pickerState.selectedAgents
 
+    //получаем статистику для выбранной карты с помощью функции getForMap, переменная выглядит так:
+    // mapOf(agentName to [wr,pr]). remember, чтобы json читался один раз, а не при каждой рекомпозиции
+    val mapStatsForSelectedMap = remember(selectedMap) {
+        mapStatsRepository.getForMap(selectedMap)
+    }
+
+    //применяем функцию getRecommendationForMap для получения suggestedAgents
+    // remember(selectedMap, selectedAgents) для того, чтобы рекомендация пересчитывалась
+    // только при изменении selectedMap или selectedAgents
     val recommendation: Recommendation = remember(selectedMap, selectedAgents) {
-        if (selectedMap.isBlank()) {
-            Recommendation(emptyList(), emptyList())
-        } else {
-            recommendAgentsUseCase.getRecommendationForMap(
-                mapName = selectedMap,
-                selectedAgents = selectedAgents
-            )
-        }
+        recommendAgentsUseCase.getRecommendationForMap(
+            mapName = selectedMap,
+            selectedAgents = selectedAgents
+        )
     }
 
 
-
+    //навигация: начало - HomeScreen
     NavHost(
         navController = navController,
         startDestination = ScreenRoutes.Home.route
@@ -144,14 +145,17 @@ fun MyApp(
             HomeScreen(
                 onSignInClick = {navController.navigate(ScreenRoutes.SignIn.route)}
             )
+
         }
         composable(ScreenRoutes.SignIn.route) {
             SignInScreen(
                 onSignUpClick = {navController.navigate(ScreenRoutes.SignUp.route)},
                 onBackClick = { navController.popBackStack() },
                 moveToChooseMapScreen = {
+                    // при успешном входе переходим на выбор карты, удаляя экраны входа и
+                    // регистрации из стека, чтобы при возврате назад через нижнюю кнопку не нужно было заново входить
                     navController.navigate(ScreenRoutes.ChooseMap.route) {
-                        popUpTo(ScreenRoutes.Home.route) { inclusive = true }
+                        popUpTo(ScreenRoutes.Home.route) { inclusive = true } //удалить из стека включая Home
                     }
                 },
                 onSignInClick = { authViewModel.login(signInEmail, signInPassword) },
@@ -185,26 +189,28 @@ fun MyApp(
         }
         composable(ScreenRoutes.Agent.route) {
             AgentScreen(
-                agentState = agentState,
+                pickerState = pickerState,
                 onSelectAgent = { name ->
-                    if (agentState.selectedAgents.contains(name)) {
-                        agentViewModel.removeAgent(name)
+                    if (pickerState.selectedAgents.contains(name)) {
+                        pickerViewModel.removeAgent(name)
                     } else {
-                        agentViewModel.selectAgent(name)
+                        pickerViewModel.selectAgent(name)
                     }
                 },
-                onRemoveAgent = { name -> agentViewModel.removeAgent(name) },
+                onRemoveAgent = { name -> pickerViewModel.removeAgent(name) },
                 onToResultClick = {navController.navigate(ScreenRoutes.Result.route)},
                 onBackClick = {navController.popBackStack()}
             )
         }
         composable(ScreenRoutes.Result.route) {
             ResultScreen(
-                onBackClick = {navController.popBackStack()},
+                onBackClick = { navController.popBackStack() },
                 selectedMap = selectedMap,
                 selectedAgents = selectedAgents,
-                recommendation = recommendation
+                recommendation = recommendation,
+                mapStats = mapStatsForSelectedMap
             )
         }
+
     }
 }

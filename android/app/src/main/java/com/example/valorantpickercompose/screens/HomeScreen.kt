@@ -27,6 +27,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -37,7 +38,7 @@ fun HomeScreen(
     onSignInClick: () -> Unit
 ) {
     val bgColor = MaterialTheme.colorScheme.background
-    val accent = MaterialTheme.colorScheme.primary
+    val primaryColor = MaterialTheme.colorScheme.primary
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -46,15 +47,17 @@ fun HomeScreen(
         Box(
             modifier = Modifier
                 .background(bgColor)
-                .drawWithCache {
+                .drawWithCache { // позволяет рисовать что-то вручную с возможностью кэширования ресурсов
+                    //точка на экране с координатами (x, y)
                     val center = Offset(
                         x = size.width * 0.75f,
                         y = size.height * 0.25f
                     )
-                    onDrawBehind {
-                        drawRect(
-                            brush = Brush.radialGradient(
-                                colors = listOf(accent.copy(alpha = 0.45f), Color.Transparent),
+                    onDrawBehind { // сама отрисовка позади всех дочерних элементов
+                        drawRect( // рисует прямоугольник
+                            //brush - то, чем заполнить этот прямоугольник
+                            brush = Brush.radialGradient( //круг, в котором цвета меняются от центра к краям, т.е градиент
+                                colors = listOf(primaryColor.copy(alpha = 0.45f), Color.Transparent),
                                 center = center,
                                 radius = size.minDimension * 0.8f
                             )
@@ -71,7 +74,7 @@ fun HomeScreen(
             ) {
                 Icon(
                     painter = painterResource(R.drawable.ic_logo),
-                    contentDescription = null,
+                    contentDescription = "logo",
                     modifier = Modifier.size(96.dp),
                     tint = Color.Unspecified
                 )
@@ -83,23 +86,23 @@ fun HomeScreen(
                     fontSize = 32.sp,
                     fontFamily = FontFamily(Font(R.font.valorantfont)),
                     color = MaterialTheme.colorScheme.onBackground,
-                    letterSpacing = 4.sp
+                    letterSpacing = 4.sp // расстояние между буквами
                 )
 
                 Text(
                     text = "PICKER",
                     fontSize = 32.sp,
                     fontFamily = FontFamily(Font(R.font.valorantfont)),
-                    color = accent,
+                    color = primaryColor,
                     letterSpacing = 4.sp
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                HorizontalDivider(
+                HorizontalDivider( // просто полоса разделитель
                     modifier = Modifier.fillMaxWidth(0.4f),
                     thickness = 1.dp,
-                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
+                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f) // берем тот же цвет, но делаем чуть более прозрачным
                 )
 
                 Spacer(modifier = Modifier.height(32.dp))
@@ -114,7 +117,6 @@ fun HomeScreen(
                 Spacer(modifier = Modifier.height(40.dp))
 
                 PrimaryHomeButton(
-                    text = "SIGN IN",
                     onClick = onSignInClick,
                     iconId = R.drawable.lucide_play
                 )
@@ -147,13 +149,13 @@ fun HomeScreen(
     }
 }
 
+//кнопка для перехода на SignInScreen, сделал красной чтобы выделялась как основная
 @Composable
 private fun PrimaryHomeButton(
-    text: String,
     onClick: () -> Unit,
     iconId: Int
 ) {
-    val accent = MaterialTheme.colorScheme.primary
+    val primaryColor = MaterialTheme.colorScheme.primary
 
     Button(
         onClick = onClick,
@@ -161,25 +163,26 @@ private fun PrimaryHomeButton(
             .fillMaxWidth()
             .height(56.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = accent,
+            containerColor = primaryColor,
             contentColor = MaterialTheme.colorScheme.onPrimary
         )
     ) {
         Icon(
             painter = painterResource(iconId),
-            contentDescription = null,
+            contentDescription = "SignIn icon",
             modifier = Modifier.size(20.dp)
         )
         Spacer(modifier = Modifier.weight(1f))
         Text(
-            text = text,
+            text = "SIGN IN",
             fontSize = 18.sp,
-            fontFamily = FontFamily(Font(R.font.valorantfont))
+            fontWeight = FontWeight.SemiBold
         )
         Spacer(modifier = Modifier.weight(1f))
     }
 }
 
+// компоуз функция для других кнопок(второстепенных), здесь есть параметр text в конструкторе, тк их несколько на экране
 @Composable
 private fun SecondaryHomeButton(
     text: String,
@@ -198,14 +201,14 @@ private fun SecondaryHomeButton(
     ) {
         Icon(
             painter = painterResource(iconId),
-            contentDescription = null,
+            contentDescription = "secondary icon(settings/faq/contacts)",
             modifier = Modifier.size(20.dp)
         )
         Spacer(modifier = Modifier.weight(1f))
         Text(
             text = text,
             fontSize = 16.sp,
-            fontFamily = FontFamily(Font(R.font.valorantfont))
+            fontWeight = FontWeight.SemiBold
         )
         Spacer(modifier = Modifier.weight(1f))
     }

@@ -28,20 +28,19 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.valorantpickercompose.R
+import com.example.valorantpickercompose.data.model.AgentMapStatsDto
 import com.example.valorantpickercompose.domain.model.Recommendation
 
 @Composable
 fun ResultScreen(
     selectedMap: String,
     selectedAgents: List<String>,
-    recommendation: Recommendation,
+    recommendation: Recommendation?,
+    mapStats: Map<String, AgentMapStatsDto>,
     onBackClick: () -> Unit
 ) {
     val bg = MaterialTheme.colorScheme.background
@@ -80,7 +79,7 @@ fun ResultScreen(
                 Text(
                     text = "RECOMMENDATION",
                     fontSize = 24.sp,
-                    fontFamily = FontFamily(Font(R.font.valorantfont)),
+                    fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground,
                     textAlign = TextAlign.Center
                 )
@@ -110,14 +109,13 @@ fun ResultScreen(
                         Text(
                             text = "MAP",
                             fontSize = 12.sp,
-                            fontFamily = FontFamily(Font(R.font.valorantfont)),
+                            fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
                         )
                         Text(
                             text = selectedMap,
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
-                            fontFamily = FontFamily(Font(R.font.valorantfont)),
                             color = MaterialTheme.colorScheme.onSurface
                         )
                     }
@@ -140,7 +138,7 @@ fun ResultScreen(
                         Text(
                             text = "YOUR TEAM AGENTS",
                             fontSize = 12.sp,
-                            fontFamily = FontFamily(Font(R.font.valorantfont)),
+                            fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
                         )
 
@@ -163,7 +161,7 @@ fun ResultScreen(
                                         Text(
                                             text = agent.uppercase(),
                                             fontSize = 16.sp,
-                                            fontFamily = FontFamily(Font(R.font.valorantfont)),
+                                            fontWeight = FontWeight.Bold,
                                             color = MaterialTheme.colorScheme.onSurface
                                         )
                                         val iconRes = agentIcons[agent]
@@ -182,8 +180,6 @@ fun ResultScreen(
                     }
                 }
 
-                // в ResultScreen, под блоком YOUR TEAM AGENTS
-
                 Spacer(modifier = Modifier.height(24.dp))
 
                 Box(
@@ -200,11 +196,10 @@ fun ResultScreen(
                         Text(
                             text = "RECOMMENDED PICKS",
                             fontSize = 12.sp,
-                            fontFamily = FontFamily(Font(R.font.valorantfont)),
+                            fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
                         )
-
-                        if (recommendation.suggestedAgents.isEmpty()) {
+                        if (recommendation?.suggestedAgents?.isEmpty() ?: true) {
                             Text(
                                 text = "Your comp already covers core roles.",
                                 fontSize = 14.sp,
@@ -213,10 +208,18 @@ fun ResultScreen(
                         } else {
                             recommendation.suggestedAgents.forEach { agent ->
                                 val roleName = agent.role.name.lowercase().replaceFirstChar { it.uppercase() }
+
+                                val key = when (agent.name) {
+                                    "Kayo", "KAY/O", "KAYO" -> "KAY/O"
+                                    else -> agent.name
+                                }
+                                val stats = mapStats[key]
+                                val wrPercent = ((stats?.winRate ?: 0.0) * 100).toInt()
+                                val prPercent = ((stats?.pickRate ?: 0.0) * 100).toInt()
+
                                 Text(
-                                    text = "${agent.name} — $roleName • ${(agent.winRate * 100).toInt()}% WR • ${(agent.pickRate * 100).toInt()}% PR",
+                                    text = "${agent.name} — $roleName • ${wrPercent}% WR • ${prPercent}% PR",
                                     fontSize = 14.sp,
-                                    fontFamily = FontFamily(Font(R.font.valorantfont)),
                                     color = MaterialTheme.colorScheme.onSurface
                                 )
                             }
@@ -240,7 +243,6 @@ fun ResultScreen(
                     Text(
                         text = "BACK",
                         fontSize = 16.sp,
-                        fontFamily = FontFamily(Font(R.font.valorantfont))
                     )
                 }
             }

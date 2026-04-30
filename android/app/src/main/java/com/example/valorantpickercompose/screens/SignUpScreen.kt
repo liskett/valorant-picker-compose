@@ -29,8 +29,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -99,7 +98,7 @@ fun SignUpScreen(
                 Text(
                     text = "SIGN UP",
                     fontSize = 32.sp,
-                    fontFamily = FontFamily(Font(R.font.valorantfont)),
+                    fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onBackground
                 )
@@ -113,7 +112,7 @@ fun SignUpScreen(
                     Text(
                         text = "USERNAME",
                         fontSize = 14.sp,
-                        fontFamily = FontFamily(Font(R.font.valorantfont)),
+                        fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
                         modifier = Modifier.padding(start = 4.dp)
                     )
@@ -125,7 +124,6 @@ fun SignUpScreen(
                         onValueChange = onEmailChange,
                         textStyle = TextStyle(
                             color = MaterialTheme.colorScheme.onSurface,
-                            fontFamily = FontFamily(Font(R.font.valorantfont)),
                             fontSize = 14.sp
                         ),
                         modifier = Modifier
@@ -147,7 +145,7 @@ fun SignUpScreen(
                     Text(
                         text = "PASSWORD",
                         fontSize = 14.sp,
-                        fontFamily = FontFamily(Font(R.font.valorantfont)),
+                        fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
                         modifier = Modifier.padding(start = 4.dp)
                     )
@@ -160,7 +158,6 @@ fun SignUpScreen(
                         visualTransformation = PasswordVisualTransformation(),
                         textStyle = TextStyle(
                             color = MaterialTheme.colorScheme.onSurface,
-                            fontFamily = FontFamily(Font(R.font.valorantfont)),
                             fontSize = 14.sp
                         ),
                         modifier = Modifier
@@ -193,7 +190,7 @@ fun SignUpScreen(
                     Text(
                         text = "CREATE ACCOUNT",
                         fontSize = 18.sp,
-                        fontFamily = FontFamily(Font(R.font.valorantfont))
+                        fontWeight = FontWeight.SemiBold
                     )
                 }
             }

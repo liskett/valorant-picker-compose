@@ -6,13 +6,14 @@ import com.example.valorantpickercompose.data.model.RegisterRequest
 import com.example.valorantpickercompose.domain.model.User
 import com.example.valorantpickercompose.domain.repository.AuthRepository
 
+//реализация логики функций репозитория, имплементируется от интерфейса в domain-слое
 class AuthRepositoryImpl(
     private val api: AuthApi
 ) : AuthRepository {
 
     override suspend fun login(email: String, password: String): User {
-        val request = LoginRequest(email, password)
-        val response = api.login(request)
+        val request = LoginRequest(email, password) //тело запроса
+        val response = api.login(request) // отправляет запрос на сервер через вызов функции AuthApi и присваивает в эту переменную ответ сервера AuthResponse
         return User(
             id = response.userId ?: -1,
             email = email
@@ -20,8 +21,8 @@ class AuthRepositoryImpl(
     }
 
     override suspend fun register(email: String, password: String): User {
-        val request = RegisterRequest(email, password)
-        val response = api.register(request)
+        val request = RegisterRequest(email, password) //тело запроса
+        val response = api.register(request) // отправляет запрос на сервер через вызов функции AuthApi и присваивает в эту переменную ответ сервера AuthResponse
         return User(
             id = response.userId ?: -1,
             email = email

@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -65,18 +66,19 @@ dependencies {
     androidTestImplementation(libs.androidx.navigation.testing)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.compose.material3.window.size.class1)
-    // --- Retrofit
+    // Retrofit
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
-
-    // --- OkHttp (логирование)
+    // OkHttp (логирование)
     implementation(libs.okhttp)
     implementation(libs.logging.interceptor)
-
-    // --- Coroutines
+    // Coroutines
     implementation(libs.kotlinx.coroutines.android)
-
-    // --- ViewModel + Compose
+    // ViewModel
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.lifecycle.runtime.compose)
+    // Room
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
 }

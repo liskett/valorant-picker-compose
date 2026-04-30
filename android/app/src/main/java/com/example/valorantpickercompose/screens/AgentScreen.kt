@@ -32,13 +32,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.valorantpickercompose.R
-import com.example.valorantpickercompose.viewmodel.AgentState
+import com.example.valorantpickercompose.viewmodel.PickerState
 
 val agentIcons = mapOf(
     "Astra" to R.drawable.astra_icon,
@@ -53,7 +51,7 @@ val agentIcons = mapOf(
     "Harbor" to R.drawable.harbor_icon,
     "Iso" to R.drawable.iso_icon,
     "Jett" to R.drawable.jett_icon,
-    "Kayo" to R.drawable.kayo_icon,
+    "KAY/O" to R.drawable.kayo_icon,
     "Killjoy" to R.drawable.killjoy_icon,
     "Neon" to R.drawable.neon_icon,
     "Omen" to R.drawable.omen_icon,
@@ -72,7 +70,7 @@ val agentIcons = mapOf(
 )
 @Composable
 fun AgentScreen(
-    agentState: AgentState,
+    pickerState: PickerState,
     onSelectAgent: (String) -> Unit,
     onRemoveAgent: (String) -> Unit,
     onToResultClick: () -> Unit,
@@ -107,7 +105,6 @@ fun AgentScreen(
                         color = MaterialTheme.colorScheme.onBackground,
                         fontSize = 28.sp,
                         fontWeight = FontWeight.Bold,
-                        fontFamily = FontFamily(Font(R.font.valorantfont))
                     )
                 }
 
@@ -118,10 +115,10 @@ fun AgentScreen(
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
                     repeat(4) { index ->
-                        if (index < agentState.selectedAgents.size) {
+                        if (index < pickerState.selectedAgents.size) {
                             SelectedAgentIcon(
-                                agentName = agentState.selectedAgents[index],
-                                onRemove = { onRemoveAgent(agentState.selectedAgents[index]) }
+                                agentName = pickerState.selectedAgents[index],
+                                onRemove = { onRemoveAgent(pickerState.selectedAgents[index]) }
                             )
                         } else {
                             EmptySlot()
@@ -141,7 +138,7 @@ fun AgentScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     items(agentIcons.keys.toList()) { agentName ->
-                        val isSelected = agentState.selectedAgents.contains(agentName)
+                        val isSelected = pickerState.selectedAgents.contains(agentName)
                         Box(
                             contentAlignment = Alignment.Center,
                             modifier = Modifier
@@ -187,14 +184,14 @@ fun AgentScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                if (agentState.selectedAgents.size == 4) {
+                if (pickerState.selectedAgents.size == 4) {
                     Button(
                         colors = ButtonDefaults.buttonColors(containerColor = accent),
                         onClick = onToResultClick
                     ) {
                         Text(
                             "TO RESULT",
-                            fontFamily = FontFamily(Font(R.font.valorantfont))
+                            fontWeight = FontWeight.SemiBold
                         )
                     }
                 }

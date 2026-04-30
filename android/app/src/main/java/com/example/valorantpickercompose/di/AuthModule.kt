@@ -8,8 +8,13 @@ import com.example.valorantpickercompose.domain.usecase.LoginUseCase
 import com.example.valorantpickercompose.domain.usecase.RegisterUseCase
 import com.example.valorantpickercompose.viewmodel.AuthViewModel
 
+//файл внедрения зависимостей - Dependency Injection(DI)
+// тут создаются все объекты, связанные с аутентификацией, и связываются между собой
+// нужен для облегчения кода, чтобы не писать в каждом экране много кода для получения viewModel
+// можно просто вызвать метод provideAuthViewModel
 object AuthModule {
 
+    //
     private val authApi: AuthApi by lazy {
         RetrofitClient.authApi
     }
