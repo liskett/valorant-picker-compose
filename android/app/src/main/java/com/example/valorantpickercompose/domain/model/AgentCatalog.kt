@@ -3,37 +3,38 @@ package com.example.valorantpickercompose.domain.model
 object AgentCatalog {
 
     val allAgents: List<AgentInfo> = listOf(
-        AgentInfo("Astra",    Role.CONTROLLER),
-        AgentInfo("Breach",   Role.INITIATOR),
-        AgentInfo("Brimstone",Role.CONTROLLER),
-        AgentInfo("Chamber",  Role.SENTINEL),
-        AgentInfo("Clove",    Role.CONTROLLER),
-        AgentInfo("Cypher",   Role.SENTINEL),
-        AgentInfo("Deadlock", Role.SENTINEL),
-        AgentInfo("Fade",     Role.INITIATOR),
-        AgentInfo("Gekko",    Role.INITIATOR),
-        AgentInfo("Harbor",   Role.CONTROLLER),
-        AgentInfo("Iso",      Role.DUELIST),
-        AgentInfo("Jett",     Role.DUELIST),
-        AgentInfo("KAY/O",     Role.INITIATOR),
-        AgentInfo("Killjoy",  Role.SENTINEL),
-        AgentInfo("Neon",     Role.DUELIST),
-        AgentInfo("Omen",     Role.CONTROLLER),
-        AgentInfo("Phoenix",  Role.DUELIST),
-        AgentInfo("Raze",     Role.DUELIST),
-        AgentInfo("Reyna",    Role.DUELIST),
-        AgentInfo("Sage",     Role.SENTINEL),
-        AgentInfo("Skye",     Role.INITIATOR),
-        AgentInfo("Sova",     Role.INITIATOR),
-        AgentInfo("Tejo",     Role.INITIATOR),
-        AgentInfo("Veto",     Role.SENTINEL),
-        AgentInfo("Viper",    Role.CONTROLLER),
-        AgentInfo("Vyse",     Role.SENTINEL),
-        AgentInfo("Waylay",   Role.DUELIST),
-        AgentInfo("Yoru",     Role.DUELIST)
+        AgentInfo(Agent.ASTRA, Role.CONTROLLER),
+        AgentInfo(Agent.BREACH, Role.INITIATOR),
+        AgentInfo(Agent.BRIMSTONE, Role.CONTROLLER),
+        AgentInfo(Agent.CHAMBER, Role.SENTINEL),
+        AgentInfo(Agent.CLOVE, Role.CONTROLLER),
+        AgentInfo(Agent.CYPHER, Role.SENTINEL),
+        AgentInfo(Agent.DEADLOCK, Role.SENTINEL),
+        AgentInfo(Agent.FADE, Role.INITIATOR),
+        AgentInfo(Agent.GEKKO, Role.INITIATOR),
+        AgentInfo(Agent.HARBOR, Role.CONTROLLER),
+        AgentInfo(Agent.ISO, Role.DUELIST),
+        AgentInfo(Agent.JETT, Role.DUELIST),
+        AgentInfo(Agent.KAYO, Role.INITIATOR),
+        AgentInfo(Agent.KILLJOY, Role.SENTINEL),
+        AgentInfo(Agent.MIKS, Role.CONTROLLER),
+        AgentInfo(Agent.NEON, Role.DUELIST),
+        AgentInfo(Agent.OMEN, Role.CONTROLLER),
+        AgentInfo(Agent.PHOENIX, Role.DUELIST),
+        AgentInfo(Agent.RAZE, Role.DUELIST),
+        AgentInfo(Agent.REYNA, Role.DUELIST),
+        AgentInfo(Agent.SAGE, Role.SENTINEL),
+        AgentInfo(Agent.SKYE, Role.INITIATOR),
+        AgentInfo(Agent.SOVA, Role.INITIATOR),
+        AgentInfo(Agent.TEJO, Role.INITIATOR),
+        AgentInfo(Agent.VETO, Role.SENTINEL),
+        AgentInfo(Agent.VIPER, Role.CONTROLLER),
+        AgentInfo(Agent.VYSE, Role.SENTINEL),
+        AgentInfo(Agent.WAYLAY, Role.DUELIST),
+        AgentInfo(Agent.YORU, Role.DUELIST)
     )
 
     //свойство для поиска агента по имени и возврата объекта класса AgentInfo
-    val byName: Map<String, AgentInfo> = allAgents.associateBy { it.name }
+    val byName: Map<Agent, AgentInfo> = allAgents.associateBy { it.name }
 }
 

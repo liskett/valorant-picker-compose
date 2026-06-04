@@ -5,32 +5,31 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.valorantpickercompose.data.repository.MapAgentStatsRepository
-import com.example.valorantpickercompose.di.AuthModule
-import com.example.valorantpickercompose.domain.usecase.RecommendAgentsUseCase
-import com.example.valorantpickercompose.screens.AgentScreen
-import com.example.valorantpickercompose.screens.ChooseMapScreen
-import com.example.valorantpickercompose.screens.HomeScreen
-import com.example.valorantpickercompose.screens.ResultScreen
-import com.example.valorantpickercompose.screens.SignInScreen
-import com.example.valorantpickercompose.screens.SignUpScreen
-import com.example.valorantpickercompose.ui.theme.AppTheme
-import com.example.valorantpickercompose.viewmodel.PickerViewModel
-import com.example.valorantpickercompose.viewmodel.AuthViewModel
-import com.example.valorantpickercompose.domain.model.Recommendation
+import com.example.valorantpickercompose.di.AppModule
+import com.example.valorantpickercompose.presentation.screens.AgentScreen
+import com.example.valorantpickercompose.presentation.screens.ChooseMapScreen
+import com.example.valorantpickercompose.presentation.screens.HomeScreen
+import com.example.valorantpickercompose.presentation.screens.ResultScreen
+import com.example.valorantpickercompose.presentation.screens.SettingsScreen
+import com.example.valorantpickercompose.presentation.screens.SignInScreen
+import com.example.valorantpickercompose.presentation.screens.SignUpScreen
+import com.example.valorantpickercompose.presentation.ui.theme.AppTheme
+import com.example.valorantpickercompose.presentation.viewmodel.PickerViewModel
+import com.example.valorantpickercompose.presentation.viewmodel.AuthViewModel
+import com.example.valorantpickercompose.presentation.viewmodel.SettingsViewModel
 
-//sealed класс для хранения маршрутов навигации
+// sealed класс для хранения маршрутов навигации
 sealed class ScreenRoutes(val route: String) {
     object Home : ScreenRoutes("home_screen")
     object SignIn : ScreenRoutes("sign_in_screen")
@@ -38,23 +37,19 @@ sealed class ScreenRoutes(val route: String) {
     object ChooseMap : ScreenRoutes("choose_map_screen")
     object Agent : ScreenRoutes("agent_screen")
     object Result : ScreenRoutes("result_screen")
+    object Settings : ScreenRoutes("settings_screen")
 }
 
 class MainActivity : ComponentActivity() {
-
-    private val pickerViewModel: PickerViewModel by viewModels()
-    // AuthViewModel будем создавать через AuthModule внутри MyApp
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        AppModule.init(this)
         setContent {
             AppTheme {
-                MyApp(pickerViewModel)
+                MyApp()
             }
         }
     }
-
     // логирование жизненного цикла
     override fun onStart() {
         Log.d("TAG", "onStart")
@@ -63,6 +58,7 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         Log.d("TAG", "onResume")
         super.onResume()
+        enableEdgeToEdge()
     }
     override fun onPause() {
         Log.d("TAG", "onPause")
@@ -79,114 +75,106 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MyApp(
-    pickerViewModel: PickerViewModel,
-) {
+fun MyApp() {
     // remember чтобы не пересоздавался при рекомпозициях
     val navController = rememberNavController()
-    //cоздаем AuthViewModel через DI-модуль
-    val authViewModel: AuthViewModel = androidx.compose.runtime.remember {
-        AuthModule.provideAuthViewModel()
-    }
-    //for SignInScreen
-    val loginState by authViewModel.loginState.collectAsState() // подписываемся на состояние входа с помощью коллектора для stateflow
-    var signInEmail by remember { mutableStateOf("") } // просто состояние email и password при заходе на экран
-    var signInPassword by remember { mutableStateOf("") }
+    // создаем ViewModel через DI-модуль
+    val authViewModel: AuthViewModel = viewModel(
+        factory = AppModule.provideAuthViewModelFactory()
+    )
+    val pickerViewModel: PickerViewModel = viewModel(
+        factory = AppModule.providePickerViewModelFactory()
+    )
+    // for SignInScreen
+    val loginState by authViewModel.loginState.collectAsStateWithLifecycle() // подписываемся на состояние входа
+    var signInEmail by remember { mutableStateOf("") } // состояние email при заходе на экран
+    var signInPassword by remember { mutableStateOf("") } // состояние password при заходе на экран
 
-    //for SignUpScreen
-    val registerState by authViewModel.registerState.collectAsState() // подписываемся на состояние регистрации с помощью коллектора для stateflow
-    var signUpEmail by remember { mutableStateOf("") } // просто состояние email и password при заходе на экран
-    var signUpPassword by remember { mutableStateOf("") }
+    // for SignUpScreen
+    val registerState by authViewModel.registerState.collectAsStateWithLifecycle() // подписываемся на состояние регистрации
+    var signUpEmail by remember { mutableStateOf("") } // состояние email при заходе на экран
+    var signUpPassword by remember { mutableStateOf("") } // состояние password при заходе на экран
 
-    //for ChooseMapScreen и AgentScreen, получаем данные из PickerViewModel
-    val pickerState by pickerViewModel.state.collectAsState() // подписываемся на состояние pickerState с помощью коллектора для stateflow
+    // for ChooseMapScreen и AgentScreen, получаем данные из PickerViewModel
+    val pickerState by pickerViewModel.state.collectAsStateWithLifecycle() // подписываемся на состояние выбора
 
-    //for ResultScreen
-    val context = LocalContext.current // для доступа к assets
-
-    //создаем репозиторий для работы со статистикой
-    val mapStatsRepository = remember {
-        MapAgentStatsRepository(context)
-    }
-
-    // используем этот репозиторий для создания useCase
-    val recommendAgentsUseCase = remember {
-        RecommendAgentsUseCase(
-            mapStatsRepository = mapStatsRepository
-        )
-    }
-
-    val selectedMap: String = pickerState.selectedMap ?: ""
+    val selectedMap = pickerState.selectedMap
     val selectedAgents = pickerState.selectedAgents
 
-    //получаем статистику для выбранной карты с помощью функции getForMap, переменная выглядит так:
-    // mapOf(agentName to [wr,pr]). remember, чтобы json читался один раз, а не при каждой рекомпозиции
-    val mapStatsForSelectedMap = remember(selectedMap) {
-        mapStatsRepository.getForMap(selectedMap)
-    }
-
-    //применяем функцию getRecommendationForMap для получения suggestedAgents
-    // remember(selectedMap, selectedAgents) для того, чтобы рекомендация пересчитывалась
-    // только при изменении selectedMap или selectedAgents
-    val recommendation: Recommendation = remember(selectedMap, selectedAgents) {
-        recommendAgentsUseCase.getRecommendationForMap(
-            mapName = selectedMap,
-            selectedAgents = selectedAgents
-        )
-    }
-
-
-    //навигация: начало - HomeScreen
+    // навигация: начало - HomeScreen
     NavHost(
         navController = navController,
         startDestination = ScreenRoutes.Home.route
     ) {
         composable(ScreenRoutes.Home.route) {
+            val uriHandler = LocalUriHandler.current
             HomeScreen(
-                onSignInClick = {navController.navigate(ScreenRoutes.SignIn.route)}
+                onSignInClick = {
+                    navController.navigate(ScreenRoutes.SignIn.route)
+                },
+                onSettingsClick = {
+                    navController.navigate(ScreenRoutes.Settings.route)
+                },
+                onContactsClick = {
+                    uriHandler.openUri("https://t.me/dyqehx")
+                }
             )
-
         }
+
         composable(ScreenRoutes.SignIn.route) {
             SignInScreen(
-                onSignUpClick = {navController.navigate(ScreenRoutes.SignUp.route)},
-                onBackClick = { navController.popBackStack() },
+                onSignUpClick = { navController.navigate(ScreenRoutes.SignUp.route) },
+                onBackClick = { navController.navigate(ScreenRoutes.Home.route) },
                 moveToChooseMapScreen = {
-                    // при успешном входе переходим на выбор карты, удаляя экраны входа и
-                    // регистрации из стека, чтобы при возврате назад через нижнюю кнопку не нужно было заново входить
+                    // при успешном входе переходим на выбор карты
+                    // удаляем экраны входа и регистрации из стека
                     navController.navigate(ScreenRoutes.ChooseMap.route) {
-                        popUpTo(ScreenRoutes.Home.route) { inclusive = true } //удалить из стека включая Home
+                        popUpTo(ScreenRoutes.Home.route) { inclusive = true }
                     }
                 },
                 onSignInClick = { authViewModel.login(signInEmail, signInPassword) },
                 loginState = loginState,
                 email = signInEmail,
-                onEmailChange = {signInEmail = it},
+                onEmailChange = { signInEmail = it },
                 password = signInPassword,
-                onPasswordChange = {signInPassword = it}
+                onPasswordChange = { signInPassword = it }
             )
         }
+
         composable(ScreenRoutes.SignUp.route) {
             SignUpScreen(
-                onBackClick = {navController.popBackStack()},
-                moveToSignInScreen = {navController.navigate(ScreenRoutes.SignIn.route)},
+                onBackClick = { navController.popBackStack() },
+                moveToSignInScreen = {
+                    navController.navigate(ScreenRoutes.SignIn.route) {
+                        popUpTo(ScreenRoutes.SignUp.route) {
+                            inclusive = true
+                        }
+                    }
+                },
                 onSignUpClick = { authViewModel.register(signUpEmail, signUpPassword) },
                 registerState = registerState,
                 email = signUpEmail,
-                onEmailChange = {signUpEmail = it},
+                onEmailChange = { signUpEmail = it },
                 password = signUpPassword,
-                onPasswordChange = {signUpPassword = it},
+                onPasswordChange = { signUpPassword = it },
+                onRegisterHandled = {
+                    authViewModel.resetRegisterState()
+                    signUpEmail = ""
+                    signUpPassword = ""
+                }
             )
         }
+
         composable(ScreenRoutes.ChooseMap.route) {
             ChooseMapScreen(
                 selectedMap = pickerState.selectedMap,
-                onMapClick = { mapName ->
-                    pickerViewModel.selectMap(mapName)
+                onMapClick = { map ->
+                    pickerViewModel.selectMap(map)
                     navController.navigate(ScreenRoutes.Agent.route)
                 }
             )
         }
+
         composable(ScreenRoutes.Agent.route) {
             AgentScreen(
                 pickerState = pickerState,
@@ -198,19 +186,27 @@ fun MyApp(
                     }
                 },
                 onRemoveAgent = { name -> pickerViewModel.removeAgent(name) },
-                onToResultClick = {navController.navigate(ScreenRoutes.Result.route)},
-                onBackClick = {navController.popBackStack()}
+                onToResultClick = { navController.navigate(ScreenRoutes.Result.route) },
+                onBackClick = { navController.popBackStack() }
             )
         }
+
         composable(ScreenRoutes.Result.route) {
             ResultScreen(
                 onBackClick = { navController.popBackStack() },
                 selectedMap = selectedMap,
                 selectedAgents = selectedAgents,
-                recommendation = recommendation,
-                mapStats = mapStatsForSelectedMap
+                viewModel = pickerViewModel
             )
         }
-
+        composable(ScreenRoutes.Settings.route) {
+            val settingsViewModel: SettingsViewModel = viewModel(
+                factory = AppModule.provideSettingsViewModelFactory()
+            )
+            SettingsScreen(
+                viewModel = settingsViewModel,
+                onBackClick = { navController.popBackStack() }
+            )
+        }
     }
 }

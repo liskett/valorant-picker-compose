@@ -10,23 +10,23 @@ object MapComposition {
         Role.DUELIST
     )
     //пока что на всех картах стоит дефолтная композиция: 2 дуэлянта, 1 инициатор, 1 страж и 1 контроллер, но этот мап создан для того, чтобы менять в случае смены меты
-    private val mapSpecific: Map<String, List<Role>> = mapOf(
-        "ASCENT" to defaultComp,
-        "BIND" to defaultComp,
-        "HAVEN" to defaultComp,
-        "SPLIT" to defaultComp,
-        "ICEBOX" to defaultComp,
-        "BREEZE" to defaultComp,
-        "PEARL" to defaultComp,
-        "LOTUS" to defaultComp,
-        "SUNSET" to defaultComp,
-        "FRACTURE" to defaultComp,
-        "CORRODE" to defaultComp,
-        "ABYSS" to defaultComp
+    private val mapSpecific: Map<GameMap, List<Role>> = mapOf(
+        GameMap.ASCENT to defaultComp,
+        GameMap.BIND to defaultComp,
+        GameMap.HAVEN to defaultComp,
+        GameMap.SPLIT to defaultComp,
+        GameMap.ICEBOX to defaultComp,
+        GameMap.BREEZE to defaultComp,
+        GameMap.PEARL to defaultComp,
+        GameMap.LOTUS to defaultComp,
+        GameMap.SUNSET to defaultComp,
+        GameMap.FRACTURE to defaultComp,
+        GameMap.CORRODE to defaultComp,
+        GameMap.ABYSS to defaultComp
     )
 
     //некий геттер ролей для конкретной карты для доступа извне
-    fun desiredRolesForMap(mapName: String): List<Role> {
-        return mapSpecific[mapName.uppercase()] ?: defaultComp // в случае опечатки вернет дефолтную композицию
+    fun desiredRolesForMap(map: GameMap?): List<Role> {
+        return mapSpecific[map] ?: defaultComp // в случае опечатки вернет дефолтную композицию
     }
 }

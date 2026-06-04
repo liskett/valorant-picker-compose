@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     id("com.google.devtools.ksp")
+    kotlin("plugin.serialization") version "2.3.21"
 }
 
 android {
@@ -10,7 +11,9 @@ android {
     compileSdk {
         version = release(36)
     }
-
+    androidResources{
+        generateLocaleConfig = true
+    }
     defaultConfig {
         applicationId = "com.example.valorantpickercompose"
         minSdk = 24
@@ -45,6 +48,7 @@ kotlin {
     }
 }
 dependencies {
+    implementation(libs.androidx.compose.runtime)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -81,4 +85,17 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
+    // datastore
+    implementation(libs.androidx.datastore.preferences)
+
+    implementation(libs.androidx.appcompat)
+
+    //ktor
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.cio)
+    implementation(libs.ktor.client.android)
+    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.serialization.kotlinx.json)
+    implementation(libs.ktor.client.logging)
+    implementation(libs.ktor.client.auth)
 }
